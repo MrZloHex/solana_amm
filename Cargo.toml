@@ -5,4 +5,18 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+no-entrypoint = []
+test-bpf = []
+
 [dependencies]
+borsh = "0.8.2" # don't use 0.9, Instruction::new_with_borsh won't work
+thiserror = "1.0.25"
+solana-program = "1.6.10"
+
+[dev-dependencies]
+solana-program-test = "1.6.10"
+solana-sdk = "1.6.10"
+
+[lib]
+crate-type = ["cdylib", "lib"]
