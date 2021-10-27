@@ -100,7 +100,7 @@ async fn test_transfer_y() {
         id(),
         processor!(process_instruction),
     );
-
+    let _ = Pubkey::new_unique();
     let xtok_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
     let ytok_acc = Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap();
     let xtok_user = Pubkey::new_unique();
@@ -176,23 +176,24 @@ async fn test_transfer_y() {
     assert_eq!(y_lam_u, 60);
 }
 
-// #[tokio::test]
-async fn tqweest_transfer_y() {
+#[tokio::test]
+async fn test_transfer_float() {
     let mut program_test = ProgramTest::new(
         "solana_amm",
         id(),
         processor!(process_instruction),
     );
-    let key = Pubkey::new_unique();
+
+    let _ = Pubkey::new_unique();
     let xtok_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
     let ytok_acc = Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap();
-    let xtok_user = Pubkey::new_unique();//create_with_seed(&key, X_TOK_SEED, &id()).unwrap();
-    let ytok_user = Pubkey::new_unique();//create_with_seed(&key, Y_TOK_SEED, &id()).unwrap();
+    let xtok_user = Pubkey::new_unique();
+    let ytok_user = Pubkey::new_unique();
 
     program_test.add_account(
         xtok_acc,
         Account {
-            lamports: 20,
+            lamports: 25,
             owner: id().clone(),
             ..Account::default()
         }
@@ -208,7 +209,7 @@ async fn tqweest_transfer_y() {
     program_test.add_account(
         xtok_user,
         Account {
-            lamports: 15,
+            lamports: 80,
             owner: id().clone(),
             ..Account::default()
         }
@@ -216,7 +217,7 @@ async fn tqweest_transfer_y() {
     program_test.add_account(
         ytok_user,
         Account {
-            lamports: 120,
+            lamports: 10,
             owner: id().clone(),
             ..Account::default()
         }
@@ -229,7 +230,7 @@ async fn tqweest_transfer_y() {
     let mut transaction = Transaction::new_with_payer(
         &[Instruction::new_with_bytes(
             id(),
-            &[1, 60, 0, 0, 0, 0, 0, 0, 0],
+            &[0, 76, 0, 0, 0, 0, 0, 0, 0],
             vec![
                 AccountMeta::new(xtok_acc, false),
                 AccountMeta::new(ytok_acc, false),
@@ -244,17 +245,17 @@ async fn tqweest_transfer_y() {
 
     let x_acc = banks_client.get_account(xtok_acc).await.unwrap().unwrap();
     let x_lam = x_acc.lamports;
-    assert_eq!(x_lam, 5);
+    assert_eq!(x_lam, 101);
 
     let y_acc = banks_client.get_account(ytok_acc).await.unwrap().unwrap();
     let y_lam = y_acc.lamports;
-    assert_eq!(y_lam, 80);
+    assert_eq!(y_lam, 4);
 
     let x_user = banks_client.get_account(xtok_user).await.unwrap().unwrap();
     let x_lam_u = x_user.lamports;
-    assert_eq!(x_lam_u, 30);
+    assert_eq!(x_lam_u, 4);
 
     let y_user = banks_client.get_account(ytok_user).await.unwrap().unwrap();
     let y_lam_u = y_user.lamports;
-    assert_eq!(y_lam_u, 60);
+    assert_eq!(y_lam_u, 26);
 }
