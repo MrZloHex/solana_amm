@@ -10,7 +10,7 @@ no-entrypoint = []
 test-bpf = []
 
 [dependencies]
-borsh = "0.8.2" # don't use 0.9, Instruction::new_with_borsh won't work
+borsh = "0.8.2"
 thiserror = "1.0.25"
 solana-program = "1.6.10"
 

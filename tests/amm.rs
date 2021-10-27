@@ -1,52 +1,38 @@
 #![cfg(feature = "test-bpf")]
 
 use borsh::{BorshDeserialize, BorshSerialize};
-use solana_amm::{entrypoint::process_instruction, id, instruction::AmmInstruction};
-use solana_program_test::{processor, tokio, ProgramTest, ProgramTestContext};
-use solana_program::system_instruction;
+use solana_amm::{X_TOK_SEED, Y_TOK_SEED, entrypoint::process_instruction, id};
+use solana_program_test::{processor, tokio, ProgramTest};
+use solana_program::{msg, system_instruction};
 use solana_sdk::{
     signature::{Keypair, Signer},
     pubkey::Pubkey,
-    transaction::Transaction
+    transaction::Transaction,
+    account::Account
 };
 
-
-struct Env {
-    ctx: ProgramTestContext,
-    user: Keypair
-}
-
-impl Env {
-    async fn new() -> Self {
-        let program_test = ProgramTest::new("solana_amm", id(), processor!(process_instruction));
-        let mut ctx = program_test.start_with_context().await;
-
-        let user = Keypair::new();
-
-        ctx.banks_client.process_transaction(Transaction::new_signed_with_payer(
-                &[
-                    system_instruction::transfer(
-                        &ctx.payer.pubkey(),
-                        &user.pubkey(),
-                        100_000_000,
-                    )
-                ],
-                Some(&ctx.payer.pubkey()),
-                &[&ctx.payer],
-                ctx.last_blockhash,
-            )).await.unwrap();
-
-        Env {
-            ctx,
-            user
-        }
-    }
-}
 
 
 #[tokio::test]
 async fn test_start() {
-    let mut env = Env::new().await;
+    let mut program_test = ProgramTest::new(
+        "solana_amm",
+        id(),
+        processor!(process_instruction),
+    );
+
+    program_test.add_account(
+        Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap(),
+        Account {
+            lamports: 69_000,
+            owner: id().clone(),
+            ..Account::default()
+        }
+    );
+
+    let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
+
+
 
     assert_eq!(1, 1);
 }
