@@ -29,6 +29,14 @@ async fn test_start() {
             ..Account::default()
         }
     );
+    program_test.add_account(
+        Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap(),
+        Account {
+            lamports: 35_000,
+            owner: id().clone(),
+            ..Account::default()
+        }
+    );
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
