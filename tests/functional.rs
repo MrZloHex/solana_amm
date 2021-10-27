@@ -23,8 +23,8 @@ async fn test_transfer() {
     );
     let xtok_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
     let ytok_acc = Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap();
-    // let xtok_user = Pubkey::new_unique();
-    // let ytok_user = Pubkey::new_unique();
+    let xtok_user = Pubkey::new_unique();
+    let ytok_user = Pubkey::new_unique();
 
     program_test.add_account(
         xtok_acc,
@@ -43,22 +43,22 @@ async fn test_transfer() {
         }
     );
 
-    // program_test.add_account(
-    //     xtok_user,
-    //     Account {
-    //         lamports: 34_000,
-    //         owner: id().clone(),
-    //         ..Account::default()
-    //     }
-    // );
-    // program_test.add_account(
-    //     ytok_user,
-    //     Account {
-    //         lamports: 35_000,
-    //         owner: id().clone(),
-    //         ..Account::default()
-    //     }
-    // );
+    program_test.add_account(
+        xtok_user,
+        Account {
+            lamports: 34_000,
+            owner: id().clone(),
+            ..Account::default()
+        }
+    );
+    program_test.add_account(
+        ytok_user,
+        Account {
+            lamports: 35_000,
+            owner: id().clone(),
+            ..Account::default()
+        }
+    );
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
@@ -69,8 +69,8 @@ async fn test_transfer() {
             vec![
                 AccountMeta::new(xtok_acc, false),
                 AccountMeta::new(ytok_acc, false),
-                // AccountMeta::new(xtok_user, false),
-                // AccountMeta::new(ytok_user, false),
+                AccountMeta::new(xtok_user, false),
+                AccountMeta::new(ytok_user, false),
             ],
         )],
         Some(&payer.pubkey()),
