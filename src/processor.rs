@@ -1,6 +1,7 @@
 use solana_program::{account_info::{AccountInfo, next_account_info}, entrypoint::ProgramResult, msg, program_error::ProgramError, pubkey::Pubkey};
 
 use crate::{X_TOK_SEED, Y_TOK_SEED, id};
+use crate::errors::PDAError;
 
 
 pub struct Processor;
@@ -17,10 +18,10 @@ impl Processor {
         let ytok_info_p = next_account_info(acc_iter)?;
 
         if !check_pda_acc(xtok_info_p.key, X_TOK_SEED) {
-            return Err(ProgramError::InvalidSeeds);
+            return Err(PDAError::WrongPDA.into());
         }
         if !check_pda_acc(ytok_info_p.key, Y_TOK_SEED) {
-            return Err(ProgramError::InvalidSeeds);
+            return Err(PDAError::WrongPDA.into());
         }
 
         **xtok_info_p.try_borrow_mut_lamports()? -= 35_000;

@@ -15,7 +15,7 @@ use solana_sdk::{
 
 
 #[tokio::test]
-async fn test_start() {
+async fn test_transfer() {
     let mut program_test = ProgramTest::new(
         "solana_amm",
         id(),
