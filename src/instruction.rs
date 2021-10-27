@@ -1,22 +1,18 @@
 use borsh::{self, BorshSerialize, BorshDeserialize};
-use solana_program::{instruction::{AccountMeta, Instruction}, pubkey::Pubkey};
 
-use crate::{X_TOK_SEED, Y_TOK_SEED, id};
+use crate::{Y_TOK_SEED, X_TOK_SEED, id};
+use solana_program::pubkey::Pubkey;
+use solana_program::instruction::{AccountMeta, Instruction};
 
-
-
-#[derive(BorshSerialize, BorshDeserialize, Clone, Copy)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Copy, PartialEq, Debug)]
 pub enum TokenType {
     X,
     Y
 }
 
 
-#[derive(BorshSerialize, BorshDeserialize)]
+#[derive(BorshSerialize, BorshDeserialize, PartialEq, Debug)]
 pub struct TransferAMM {
-    // Token Type:
-    // - 1: X TOKEN
-    // - 2: Y TOKEN
     token_type: TokenType,
     quantity: u64
 }
@@ -28,7 +24,7 @@ impl TransferAMM {
     //         return Err(1);
     //     }
     //     let trans_amm = TransferAMM {
-    //         token_type,
+    //         token_type: TokenType::X,
     //         quantity
     //     };
 
@@ -58,7 +54,7 @@ impl TransferAMM {
 
 #[cfg(test)]
 mod test {
-    use borsh::BorshSerialize;
+    use borsh::{BorshSerialize, BorshDeserialize};
 
     use crate::instruction::{TokenType, TransferAMM};
 
@@ -73,6 +69,19 @@ mod test {
         assert_eq!(
             data,
             [0, 184, 136, 0, 0, 0, 0, 0, 0]
+        );
+    }
+
+    #[test]
+    fn test_deserialization() {
+        let data = TransferAMM {
+            token_type: TokenType::X,
+            quantity: 35_000
+        };
+        let instr = TransferAMM::try_from_slice(&[0, 184, 136, 0, 0, 0, 0, 0, 0]).unwrap();
+        assert_eq!(
+            data,
+            instr
         );
     }
 }

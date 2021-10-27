@@ -19,8 +19,8 @@ impl Processor {
         let acc_iter = &mut accounts.iter();
         let xtok_info_p = next_account_info(acc_iter)?;
         let ytok_info_p = next_account_info(acc_iter)?;
-        // let xtok_info_u = next_account_info(acc_iter)?;
-        // let ytok_info_u = next_account_info(acc_iter)?;
+        let xtok_info_u = next_account_info(acc_iter)?;
+        let ytok_info_u = next_account_info(acc_iter)?;
 
         if !check_pda_acc(xtok_info_p.key, X_TOK_SEED) {
             return Err(PDAError::WrongPDA.into());
@@ -28,30 +28,37 @@ impl Processor {
         if !check_pda_acc(ytok_info_p.key, Y_TOK_SEED) {
             return Err(PDAError::WrongPDA.into());
         }
-        // if !xtok_info_u.is_signer {
-        //     return Err(ProgramError::MissingRequiredSignature)
-        // }
-        // if !ytok_info_u.is_signer {
-        //     return Err(ProgramError::MissingRequiredSignature)
-        // }
 
-        let k = xtok_info_p.lamports() * ytok_info_p.lamports();
-        // let dx = instruction.get_quantity();
-        // let dy = ytok_info_p.lamports() - (k / (xtok_info_p.lamports() + dx));
-        
+        let x:  u64 = xtok_info_p.lamports();
+        let y:  u64 = ytok_info_p.lamports();
+        let k:  u64 = x * y;
+        let dx: u64 = instruction.get_quantity();
+        let dy: u64 = y - (k / (x + dx));
+
         
         match instruction.get_token_type() {
             TokenType::X => {
-                **xtok_info_p.try_borrow_mut_lamports()? -= 35000;
-                **ytok_info_p.try_borrow_mut_lamports()? += 35000;
+                **xtok_info_p.try_borrow_mut_lamports()? += dx;
+                **ytok_info_p.try_borrow_mut_lamports()? -= dy;
+                **xtok_info_u.try_borrow_mut_lamports()? -= dx;
+                **ytok_info_u.try_borrow_mut_lamports()? += dy;
             },
             TokenType::Y => {
-                **xtok_info_p.try_borrow_mut_lamports()? -= 34000;
-                **ytok_info_p.try_borrow_mut_lamports()? += 34000;
+                **xtok_info_p.try_borrow_mut_lamports()? -= dy;
+                **ytok_info_p.try_borrow_mut_lamports()? += dx;
+                **xtok_info_u.try_borrow_mut_lamports()? += dy;
+                **ytok_info_u.try_borrow_mut_lamports()? -= dx;
             },
         }
-
-        Ok(())
+        let x_n = xtok_info_p.lamports();
+        let y_n = ytok_info_p.lamports();
+        let k_n = x_n * y_n;
+        if k == k_n {
+            Ok(())
+        } else {
+            // :TODO: Error Custom
+            Err(ProgramError::MissingRequiredSignature)
+        }
     }
 }
 

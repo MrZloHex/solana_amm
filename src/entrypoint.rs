@@ -8,10 +8,6 @@ use crate::processor::Processor;
 
 entrypoint!(process_instruction);
 
-// Accounts:
-// [0, 1] - PDA
-// [2, 3] - 
-//
 pub fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
