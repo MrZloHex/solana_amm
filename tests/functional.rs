@@ -1,6 +1,6 @@
 #![cfg(feature = "test-bpf")]
 
-use solana_amm::{entrypoint::process_instruction, id, X_TOK_SEED, Y_TOK_SEED};
+use solana_amm::{TOKEN_A_SEED, TOKEN_B_SEED, entrypoint::process_instruction, id};
 use solana_program_test::{processor, tokio, ProgramTest};
 use solana_sdk::{
     account::Account,
@@ -14,8 +14,8 @@ use solana_sdk::{
 async fn test_transfer_x() {
     let mut program_test = ProgramTest::new("solana_amm", id(), processor!(process_instruction));
 
-    let xtok_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
-    let ytok_acc = Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap();
+    let xtok_acc = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
+    let ytok_acc = Pubkey::create_with_seed(&id(), TOKEN_B_SEED, &id()).unwrap();
     let xtok_user = Pubkey::new_unique();
     let ytok_user = Pubkey::new_unique();
 
@@ -90,9 +90,11 @@ async fn test_transfer_x() {
 #[tokio::test]
 async fn test_transfer_y() {
     let mut program_test = ProgramTest::new("solana_amm", id(), processor!(process_instruction));
+    // BUG: IF YOU REMOVE THIS TESTS WILL CRAHES
     let _ = Pubkey::new_unique();
-    let xtok_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
-    let ytok_acc = Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap();
+
+    let xtok_acc = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
+    let ytok_acc = Pubkey::create_with_seed(&id(), TOKEN_B_SEED, &id()).unwrap();
     let xtok_user = Pubkey::new_unique();
     let ytok_user = Pubkey::new_unique();
 
@@ -167,10 +169,11 @@ async fn test_transfer_y() {
 #[tokio::test]
 async fn test_transfer_float() {
     let mut program_test = ProgramTest::new("solana_amm", id(), processor!(process_instruction));
-
+    // BUG: IF YOU REMOVE THIS TESTS WILL CRAHES
     let _ = Pubkey::new_unique();
-    let xtok_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
-    let ytok_acc = Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap();
+
+    let xtok_acc = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
+    let ytok_acc = Pubkey::create_with_seed(&id(), TOKEN_B_SEED, &id()).unwrap();
     let xtok_user = Pubkey::new_unique();
     let ytok_user = Pubkey::new_unique();
 

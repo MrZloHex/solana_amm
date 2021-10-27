@@ -2,8 +2,8 @@ use borsh::{self, BorshDeserialize, BorshSerialize};
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Copy, PartialEq, Debug)]
 pub enum TokenType {
-    X,
-    Y,
+    A,
+    B,
 }
 
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Debug)]
@@ -31,7 +31,7 @@ mod test {
     #[test]
     fn test_serialization() {
         let data = TransferAMM {
-            token_type: TokenType::X,
+            token_type: TokenType::A,
             quantity: 35_000,
         }
         .try_to_vec()
@@ -42,10 +42,10 @@ mod test {
     #[test]
     fn test_deserialization() {
         let data = TransferAMM {
-            token_type: TokenType::X,
+            token_type: TokenType::B,
             quantity: 35_000,
         };
-        let instr = TransferAMM::try_from_slice(&[0, 184, 136, 0, 0, 0, 0, 0, 0]).unwrap();
+        let instr = TransferAMM::try_from_slice(&[1, 184, 136, 0, 0, 0, 0, 0, 0]).unwrap();
         assert_eq!(data, instr);
     }
 }
