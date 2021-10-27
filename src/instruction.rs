@@ -1,9 +1,5 @@
 use borsh::{self, BorshSerialize, BorshDeserialize};
 
-use crate::{Y_TOK_SEED, X_TOK_SEED, id};
-use solana_program::pubkey::Pubkey;
-use solana_program::instruction::{AccountMeta, Instruction};
-
 #[derive(BorshSerialize, BorshDeserialize, Clone, Copy, PartialEq, Debug)]
 pub enum TokenType {
     X,
@@ -19,30 +15,6 @@ pub struct TransferAMM {
 
 
 impl TransferAMM {
-    // pub fn tranfer(token_type: u8, quantity: u64) -> Result<Instruction, u8> {
-    //     if token_type != 1 || token_type != 2 {
-    //         return Err(1);
-    //     }
-    //     let trans_amm = TransferAMM {
-    //         token_type: TokenType::X,
-    //         quantity
-    //     };
-
-    //     let x_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
-    //     let y_acc = Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap();
-
-    //     let instr = Instruction::new_with_borsh(
-    //         id(),
-    //         &trans_amm,
-    //         vec![
-    //             AccountMeta::new(x_acc, false),
-    //             AccountMeta::new(y_acc, false),
-    //         ]
-    //     );
-
-    //     Ok(instr)
-    // }
-
     pub fn get_token_type(&self) -> TokenType {
         self.token_type.clone()
     }
