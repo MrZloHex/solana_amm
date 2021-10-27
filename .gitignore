@@ -2,3 +2,4 @@
 Cargo.lock
 gt.sh
 /node_modules
+/test-ledger
