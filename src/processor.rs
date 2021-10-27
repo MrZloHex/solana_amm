@@ -1,29 +1,26 @@
 use borsh::BorshDeserialize;
-use solana_program::{account_info::{AccountInfo, next_account_info}, entrypoint::ProgramResult, msg, pubkey::Pubkey};
+use solana_program::{
+    account_info::{next_account_info, AccountInfo},
+    entrypoint::ProgramResult,
+    msg,
+    pubkey::Pubkey,
+};
 
-use crate::{X_TOK_SEED, Y_TOK_SEED, id};
 use crate::errors::PDAError;
 use crate::instruction::{TokenType, TransferAMM};
+use crate::{id, X_TOK_SEED, Y_TOK_SEED};
 
-
-pub fn process(
-    _program_id: &Pubkey,
-    accounts: &[AccountInfo],
-    input: &[u8]
-) -> ProgramResult {
+pub fn process(_program_id: &Pubkey, accounts: &[AccountInfo], input: &[u8]) -> ProgramResult {
     msg!("Starting");
     let instruction = TransferAMM::try_from_slice(input)?;
-    
+
     match instruction.get_token_type() {
         TokenType::X => process_x(accounts, &instruction),
-        TokenType::Y => process_y(accounts, &instruction)
+        TokenType::Y => process_y(accounts, &instruction),
     }
 }
 
-pub fn process_x(
-    accounts: &[AccountInfo],
-    instruction: &TransferAMM
-) -> ProgramResult {
+pub fn process_x(accounts: &[AccountInfo], instruction: &TransferAMM) -> ProgramResult {
     let acc_iter = &mut accounts.iter();
     let xtok_info_p = next_account_info(acc_iter)?;
     let ytok_info_p = next_account_info(acc_iter)?;
@@ -37,12 +34,12 @@ pub fn process_x(
         return Err(PDAError::WrongPDA.into());
     }
 
-    let x:  u64 = xtok_info_p.lamports();
-    let y:  u64 = ytok_info_p.lamports();
-    let k:  u64 = x * y;
+    let x: u64 = xtok_info_p.lamports();
+    let y: u64 = ytok_info_p.lamports();
+    let k: u64 = x * y;
     let dx: u64 = instruction.get_quantity();
     let dy: u64 = y - (k / (x + dx));
-    
+
     **xtok_info_p.try_borrow_mut_lamports()? += dx;
     **ytok_info_p.try_borrow_mut_lamports()? -= dy;
     **xtok_info_u.try_borrow_mut_lamports()? -= dx;
@@ -50,11 +47,7 @@ pub fn process_x(
     Ok(())
 }
 
-
-pub fn process_y(
-    accounts: &[AccountInfo],
-    instruction: &TransferAMM
-) -> ProgramResult {
+pub fn process_y(accounts: &[AccountInfo], instruction: &TransferAMM) -> ProgramResult {
     let acc_iter = &mut accounts.iter();
     let xtok_info_p = next_account_info(acc_iter)?;
     let ytok_info_p = next_account_info(acc_iter)?;
@@ -68,12 +61,12 @@ pub fn process_y(
         return Err(PDAError::WrongPDA.into());
     }
 
-    let x:  u64 = xtok_info_p.lamports();
-    let y:  u64 = ytok_info_p.lamports();
-    let k:  u64 = x * y;
+    let x: u64 = xtok_info_p.lamports();
+    let y: u64 = ytok_info_p.lamports();
+    let k: u64 = x * y;
     let dy: u64 = instruction.get_quantity();
     let dx: u64 = x - (k / (y + dy));
-    
+
     **xtok_info_p.try_borrow_mut_lamports()? -= dx;
     **ytok_info_p.try_borrow_mut_lamports()? += dy;
     **xtok_info_u.try_borrow_mut_lamports()? += dx;

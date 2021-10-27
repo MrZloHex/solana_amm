@@ -1,19 +1,18 @@
-//#![cfg(feature = "test-bpf")]
+#![cfg(feature = "test-bpf")]
 
-use solana_amm::{X_TOK_SEED, Y_TOK_SEED, entrypoint::process_instruction, id};
+use solana_amm::{entrypoint::process_instruction, id, X_TOK_SEED, Y_TOK_SEED};
 use solana_program_test::{processor, tokio, ProgramTest};
-use solana_sdk::{account::Account, instruction::{Instruction, AccountMeta}, pubkey::Pubkey, signature::{Keypair, Signer}, transaction::Transaction};
-
-
-
+use solana_sdk::{
+    account::Account,
+    instruction::{AccountMeta, Instruction},
+    pubkey::Pubkey,
+    signature::Signer,
+    transaction::Transaction,
+};
 
 #[tokio::test]
 async fn test_transfer_x() {
-    let mut program_test = ProgramTest::new(
-        "solana_amm",
-        id(),
-        processor!(process_instruction),
-    );
+    let mut program_test = ProgramTest::new("solana_amm", id(), processor!(process_instruction));
 
     let xtok_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
     let ytok_acc = Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap();
@@ -26,7 +25,7 @@ async fn test_transfer_x() {
             lamports: 19,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
     program_test.add_account(
         ytok_acc,
@@ -34,7 +33,7 @@ async fn test_transfer_x() {
             lamports: 19,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
     program_test.add_account(
         xtok_user,
@@ -42,7 +41,7 @@ async fn test_transfer_x() {
             lamports: 350,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
     program_test.add_account(
         ytok_user,
@@ -50,10 +49,8 @@ async fn test_transfer_x() {
             lamports: 18,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
-
-    
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
@@ -92,11 +89,7 @@ async fn test_transfer_x() {
 
 #[tokio::test]
 async fn test_transfer_y() {
-    let mut program_test = ProgramTest::new(
-        "solana_amm",
-        id(),
-        processor!(process_instruction),
-    );
+    let mut program_test = ProgramTest::new("solana_amm", id(), processor!(process_instruction));
     let _ = Pubkey::new_unique();
     let xtok_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
     let ytok_acc = Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap();
@@ -109,7 +102,7 @@ async fn test_transfer_y() {
             lamports: 20,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
     program_test.add_account(
         ytok_acc,
@@ -117,7 +110,7 @@ async fn test_transfer_y() {
             lamports: 20,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
     program_test.add_account(
         xtok_user,
@@ -125,7 +118,7 @@ async fn test_transfer_y() {
             lamports: 15,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
     program_test.add_account(
         ytok_user,
@@ -133,10 +126,8 @@ async fn test_transfer_y() {
             lamports: 120,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
-
-    
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
@@ -175,11 +166,7 @@ async fn test_transfer_y() {
 
 #[tokio::test]
 async fn test_transfer_float() {
-    let mut program_test = ProgramTest::new(
-        "solana_amm",
-        id(),
-        processor!(process_instruction),
-    );
+    let mut program_test = ProgramTest::new("solana_amm", id(), processor!(process_instruction));
 
     let _ = Pubkey::new_unique();
     let xtok_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
@@ -193,7 +180,7 @@ async fn test_transfer_float() {
             lamports: 25,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
     program_test.add_account(
         ytok_acc,
@@ -201,7 +188,7 @@ async fn test_transfer_float() {
             lamports: 20,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
     program_test.add_account(
         xtok_user,
@@ -209,7 +196,7 @@ async fn test_transfer_float() {
             lamports: 80,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
     program_test.add_account(
         ytok_user,
@@ -217,10 +204,8 @@ async fn test_transfer_float() {
             lamports: 10,
             owner: id().clone(),
             ..Account::default()
-        }
+        },
     );
-
-    
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
