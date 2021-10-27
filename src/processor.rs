@@ -1,4 +1,4 @@
-use solana_program::{account_info::{AccountInfo, next_account_info}, entrypoint::ProgramResult, msg, program_error::ProgramError, pubkey::Pubkey};
+use solana_program::{account_info::{AccountInfo, next_account_info}, entrypoint::ProgramResult, msg, pubkey::Pubkey};
 
 use crate::{X_TOK_SEED, Y_TOK_SEED, id};
 use crate::errors::PDAError;
@@ -24,9 +24,9 @@ impl Processor {
             return Err(PDAError::WrongPDA.into());
         }
 
-        **xtok_info_p.try_borrow_mut_lamports()? -= 35_000;
-        **ytok_info_p.try_borrow_mut_lamports()? += 35_000;
-
+        let k = **xtok_info_p.try_borrow_mut_lamports()? * **ytok_info_p.try_borrow_mut_lamports()?;
+        
+        
         Ok(())
     }
 }
