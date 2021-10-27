@@ -42,6 +42,7 @@ pub fn handle_income_tok_a(accounts: &[AccountInfo], transfer_config: &TransferA
     **prog_acc_tok_b.try_borrow_mut_lamports()? -= dy;
     **user_acc_tok_a.try_borrow_mut_lamports()? -= dx;
     **user_acc_tok_b.try_borrow_mut_lamports()? += dy;
+
     Ok(())
 }
 
@@ -69,6 +70,7 @@ pub fn handle_income_tok_b(accounts: &[AccountInfo], transfer_config: &TransferA
     **prog_acc_tok_b.try_borrow_mut_lamports()? += dy;
     **user_acc_tok_a.try_borrow_mut_lamports()? += dx;
     **user_acc_tok_b.try_borrow_mut_lamports()? -= dy;
+    
     Ok(())
 }
 
