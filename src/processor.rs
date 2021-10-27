@@ -19,7 +19,8 @@ pub fn process(_program_id: &Pubkey, accounts: &[AccountInfo], instruction_data:
                 TokenType::B => handle_income_tok_b(accounts, &transfer_config),
             }
         },
-        InstructionType::CreateSettlementAccounts(_) => Ok(()),
+        InstructionType::CreateSettlementAccounts(set_accs_config) => 
+            create_settlement_accounts(set_accs_config),
     }
 }
 
@@ -81,4 +82,10 @@ pub fn handle_income_tok_b(accounts: &[AccountInfo], transfer_config: &TransferA
 
 pub fn check_pda_acc(acc: &Pubkey, seed: &str) -> bool {
     *acc == Pubkey::create_with_seed(&id(), seed, &id()).unwrap()
+}
+
+pub fn create_settlement_accounts(settle_acc_config: CreateSettlementAccounts) -> ProgramResult {
+    
+
+    Ok(())
 }

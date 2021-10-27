@@ -1,14 +1,9 @@
 #![cfg(feature = "test-bpf")]
 
 use solana_amm::{TOKEN_A_SEED, TOKEN_B_SEED, entrypoint::process_instruction, id};
+use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, tokio, ProgramTest};
-use solana_sdk::{
-    account::Account,
-    instruction::{AccountMeta, Instruction},
-    pubkey::Pubkey,
-    signature::Signer,
-    transaction::Transaction,
-};
+use solana_sdk::{account::Account, instruction::{AccountMeta, Instruction}, signature::{Keypair, Signer}, transaction::Transaction};
 
 #[tokio::test]
 async fn test_transfer_x() {
@@ -23,7 +18,7 @@ async fn test_transfer_x() {
         xtok_acc,
         Account {
             lamports: 19,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -31,7 +26,7 @@ async fn test_transfer_x() {
         ytok_acc,
         Account {
             lamports: 19,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -39,7 +34,7 @@ async fn test_transfer_x() {
         xtok_user,
         Account {
             lamports: 350,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -47,7 +42,7 @@ async fn test_transfer_x() {
         ytok_user,
         Account {
             lamports: 18,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -102,7 +97,7 @@ async fn test_transfer_y() {
         xtok_acc,
         Account {
             lamports: 20,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -110,7 +105,7 @@ async fn test_transfer_y() {
         ytok_acc,
         Account {
             lamports: 20,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -118,7 +113,7 @@ async fn test_transfer_y() {
         xtok_user,
         Account {
             lamports: 15,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -126,7 +121,7 @@ async fn test_transfer_y() {
         ytok_user,
         Account {
             lamports: 120,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -181,7 +176,7 @@ async fn test_transfer_float() {
         xtok_acc,
         Account {
             lamports: 25,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -189,7 +184,7 @@ async fn test_transfer_float() {
         ytok_acc,
         Account {
             lamports: 20,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -197,7 +192,7 @@ async fn test_transfer_float() {
         xtok_user,
         Account {
             lamports: 80,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -205,7 +200,7 @@ async fn test_transfer_float() {
         ytok_user,
         Account {
             lamports: 10,
-            owner: id().clone(),
+            owner: id(),
             ..Account::default()
         },
     );
@@ -243,4 +238,37 @@ async fn test_transfer_float() {
     let y_user = banks_client.get_account(ytok_user).await.unwrap().unwrap();
     let y_lam_u = y_user.lamports;
     assert_eq!(y_lam_u, 26);
+}
+
+#[tokio::test]
+async fn test_settlement_accounts() {
+    let mut program_test = ProgramTest::new("solana_amm", id(), processor!(process_instruction));
+
+    // let _ = Pubkey::new_unique();
+    let user_payer = Keypair::new();
+    // let user_payer = Pubkey::new_unique();
+
+    program_test.add_account(
+        user_payer.pubkey(),
+        Account {
+            lamports: 15_000,
+            owner: id(),
+            ..Account::default()
+        },
+    );
+
+    let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
+
+    let mut transaction = Transaction::new_with_payer(
+        &[Instruction::new_with_bytes(
+            id(),
+            &[1, 41, 9, 0, 0, 0, 0, 0, 0, 215, 17, 0, 0, 0, 0, 0, 0],
+            vec![
+                AccountMeta::new(user_payer.pubkey(), true),
+            ],
+        )],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer, &user_payer], recent_blockhash);
+    banks_client.process_transaction(transaction).await.unwrap();
 }
