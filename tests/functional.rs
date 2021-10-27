@@ -57,7 +57,7 @@ async fn test_transfer_x() {
     let mut transaction = Transaction::new_with_payer(
         &[Instruction::new_with_bytes(
             id(),
-            &[0, 86, 1, 0, 0, 0, 0, 0, 0],
+            &[0, 0, 86, 1, 0, 0, 0, 0, 0, 0],
             vec![
                 AccountMeta::new(xtok_acc, false),
                 AccountMeta::new(ytok_acc, false),
@@ -136,7 +136,7 @@ async fn test_transfer_y() {
     let mut transaction = Transaction::new_with_payer(
         &[Instruction::new_with_bytes(
             id(),
-            &[1, 60, 0, 0, 0, 0, 0, 0, 0],
+            &[0, 1, 60, 0, 0, 0, 0, 0, 0, 0],
             vec![
                 AccountMeta::new(xtok_acc, false),
                 AccountMeta::new(ytok_acc, false),
@@ -215,7 +215,7 @@ async fn test_transfer_float() {
     let mut transaction = Transaction::new_with_payer(
         &[Instruction::new_with_bytes(
             id(),
-            &[0, 76, 0, 0, 0, 0, 0, 0, 0],
+            &[0, 0, 76, 0, 0, 0, 0, 0, 0, 0],
             vec![
                 AccountMeta::new(xtok_acc, false),
                 AccountMeta::new(ytok_acc, false),

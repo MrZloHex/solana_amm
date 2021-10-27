@@ -6,15 +6,20 @@ use solana_program::{
 };
 
 use crate::errors::PDAError;
-use crate::instruction::{TokenType, TransferAMM};
+use crate::instruction::{TokenType, TransferAMM, InstructionType, CreateSettlementAccounts};
 use crate::{id, TOKEN_A_SEED, TOKEN_B_SEED};
 
 pub fn process(_program_id: &Pubkey, accounts: &[AccountInfo], instruction_data: &[u8]) -> ProgramResult {
-    let transfer_config = TransferAMM::try_from_slice(instruction_data)?;
+    let instruction = InstructionType::try_from_slice(instruction_data)?;
 
-    match transfer_config.get_token_type() {
-        TokenType::A => handle_income_tok_a(accounts, &transfer_config),
-        TokenType::B => handle_income_tok_b(accounts, &transfer_config),
+    match instruction {
+        InstructionType::TransferAMM(transfer_config) => {
+            match transfer_config.get_token_type() {
+                TokenType::A => handle_income_tok_a(accounts, &transfer_config),
+                TokenType::B => handle_income_tok_b(accounts, &transfer_config),
+            }
+        },
+        InstructionType::CreateSettlementAccounts(_) => Ok(()),
     }
 }
 
