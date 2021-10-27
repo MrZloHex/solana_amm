@@ -8,7 +8,8 @@ use solana_sdk::{
     signature::{Keypair, Signer},
     pubkey::Pubkey,
     transaction::Transaction,
-    account::Account
+    account::Account,
+    instruction::{Instruction, AccountMeta}
 };
 
 
@@ -20,9 +21,11 @@ async fn test_start() {
         id(),
         processor!(process_instruction),
     );
+    let xtok_acc = Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap();
+    let ytok_acc = Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap();
 
     program_test.add_account(
-        Pubkey::create_with_seed(&id(), X_TOK_SEED, &id()).unwrap(),
+        xtok_acc,
         Account {
             lamports: 69_000,
             owner: id().clone(),
@@ -30,9 +33,10 @@ async fn test_start() {
         }
     );
     program_test.add_account(
-        Pubkey::create_with_seed(&id(), Y_TOK_SEED, &id()).unwrap(),
+        ytok_acc,
+        // Pubkey::new_unique(),
         Account {
-            lamports: 35_000,
+            lamports: 34_000,
             owner: id().clone(),
             ..Account::default()
         }
@@ -40,7 +44,25 @@ async fn test_start() {
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
+    let mut transaction = Transaction::new_with_payer(
+        &[Instruction::new_with_bincode(
+            id(),
+            &(),
+            vec![
+                AccountMeta::new(xtok_acc, false),
+                AccountMeta::new(ytok_acc, false),
+            ],
+        )],
+        Some(&payer.pubkey()),
+    );
+    transaction.sign(&[&payer], recent_blockhash);
+    banks_client.process_transaction(transaction).await.unwrap();
 
+    let x_acc = banks_client.get_account(xtok_acc).await.unwrap().unwrap();
+    let x_lam = x_acc.lamports;
+    assert_eq!(x_lam, 34_000);
 
-    assert_eq!(1, 1);
+    let y_acc = banks_client.get_account(ytok_acc).await.unwrap().unwrap();
+    let y_lam = y_acc.lamports;
+    assert_eq!(y_lam, 69_000);
 }

@@ -7,7 +7,7 @@ pub struct Processor;
 
 impl Processor {
     pub fn process(
-        program_id: &Pubkey,
+        _program_id: &Pubkey,
         accounts: &[AccountInfo],
         _input: &[u8]
     ) -> ProgramResult {
@@ -22,6 +22,10 @@ impl Processor {
         if !check_pda_acc(ytok_info_p.key, Y_TOK_SEED) {
             return Err(ProgramError::InvalidSeeds);
         }
+
+        **xtok_info_p.try_borrow_mut_lamports()? -= 35_000;
+        **ytok_info_p.try_borrow_mut_lamports()? += 35_000;
+
         Ok(())
     }
 }

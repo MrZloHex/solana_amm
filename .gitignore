@@ -1,3 +1,4 @@
 /target
 Cargo.lock
 gt.sh
+/node_modules
