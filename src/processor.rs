@@ -86,8 +86,8 @@ pub fn create_settlement_accounts(accounts: &[AccountInfo], settle_acc_config: C
     let token_a_acc = next_account_info(accs_iter)?;
 
 
-    let pubkey_a = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id())?;
-    let (_, bump_seed) = Pubkey::find_program_address(&[TOKEN_A_SEED.as_bytes()], &id());
+    // let pubkey_a = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id())?;
+    let (pubkey_a, bump_seed) = Pubkey::find_program_address(&[TOKEN_A_SEED.as_bytes()], &id());
     let signer_seeds: &[&[_]] = &[TOKEN_A_SEED.as_bytes(), &[bump_seed]];
     invoke_signed(
         &system_instruction::create_account_with_seed(
