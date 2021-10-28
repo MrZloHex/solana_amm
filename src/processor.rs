@@ -83,7 +83,7 @@ pub fn check_pda_acc(acc: &Pubkey, seed: &str) -> bool {
 pub fn create_settlement_accounts(accounts: &[AccountInfo], settle_acc_config: CreateSettlementAccounts) -> ProgramResult {
     let accs_iter = &mut accounts.iter();
     let payer_acc = next_account_info(accs_iter)?;
-    // let token_a_acc = next_account_info(accs_iter)?;
+    let token_a_acc = next_account_info(accs_iter)?;
     let system_info = next_account_info(accs_iter)?;
 
 
@@ -91,16 +91,14 @@ pub fn create_settlement_accounts(accounts: &[AccountInfo], settle_acc_config: C
     let (pubkey_a, bump_seed) = Pubkey::find_program_address(&[TOKEN_A_SEED.as_bytes()], &id());
     let signer_seeds: &[&[_]] = &[TOKEN_A_SEED.as_bytes(), &[bump_seed]];
     invoke_signed(
-        &system_instruction::create_account_with_seed(
+        &system_instruction::create_account(
             payer_acc.key,
             &pubkey_a,
-            &id(),
-            TOKEN_A_SEED,
             settle_acc_config.get_tokens_a(),
             0,
             &id()
         ),
-        &[payer_acc.clone(), system_info.clone()],
+        &[payer_acc.clone(), token_a_acc.clone(), system_info.clone()],
         &[&signer_seeds]
     )?;
 
