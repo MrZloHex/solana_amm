@@ -253,19 +253,12 @@ async fn test_settlement_accounts() {
     // let _ = Pubkey::new_unique();
     let user_payer = Keypair::new();
     // let user_payer = Pubkey::new_unique();
-    let xtok_acc = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
+    let (xtok_acc, bump_seed) = Pubkey::find_program_address(&[TOKEN_A_SEED.as_bytes()], &id());
 
     program_test.add_account(
         user_payer.pubkey(),
         Account {
             lamports: 15_000,
-            owner: id(),
-            ..Account::default()
-        },
-    );
-    program_test.add_account(
-        xtok_acc,
-        Account {
             owner: id(),
             ..Account::default()
         },
@@ -276,6 +269,8 @@ async fn test_settlement_accounts() {
     let mut transaction = Transaction::new_with_payer(
         &[Instruction::new_with_bytes(
             id(),
+            // 2345
+            // 4567
             &[1, 41, 9, 0, 0, 0, 0, 0, 0, 215, 17, 0, 0, 0, 0, 0, 0],
             vec![
                 AccountMeta::new(user_payer.pubkey(), true),
