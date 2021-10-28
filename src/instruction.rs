@@ -28,6 +28,16 @@ pub struct CreateSettlementAccounts {
     quantity_tokens_b: u64
 }
 
+impl CreateSettlementAccounts {
+    pub fn get_tokens_a(&self) -> u64 {
+        self.quantity_tokens_a
+    }
+
+    pub fn get_tokens_b(&self) -> u64 {
+        self.quantity_tokens_b
+    }
+}
+
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Debug)]
 pub enum InstructionType {
     /// Accounts:

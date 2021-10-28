@@ -1,11 +1,7 @@
 use borsh::BorshDeserialize;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-};
+use solana_program::{account_info::{next_account_info, AccountInfo}, entrypoint::ProgramResult, program::invoke_signed, pubkey::Pubkey, system_instruction};
 
-use crate::errors::PDAError;
+use crate::{errors::PDAError, instruction};
 use crate::instruction::{TokenType, TransferAMM, InstructionType, CreateSettlementAccounts};
 use crate::{id, TOKEN_A_SEED, TOKEN_B_SEED};
 
@@ -20,7 +16,7 @@ pub fn process(_program_id: &Pubkey, accounts: &[AccountInfo], instruction_data:
             }
         },
         InstructionType::CreateSettlementAccounts(set_accs_config) => 
-            create_settlement_accounts(set_accs_config),
+            create_settlement_accounts(accounts, set_accs_config),
     }
 }
 
@@ -84,8 +80,44 @@ pub fn check_pda_acc(acc: &Pubkey, seed: &str) -> bool {
     *acc == Pubkey::create_with_seed(&id(), seed, &id()).unwrap()
 }
 
-pub fn create_settlement_accounts(settle_acc_config: CreateSettlementAccounts) -> ProgramResult {
-    
+pub fn create_settlement_accounts(accounts: &[AccountInfo], settle_acc_config: CreateSettlementAccounts) -> ProgramResult {
+    let accs_iter = &mut accounts.iter();
+    let payer_acc = next_account_info(accs_iter)?;
+    let token_a_acc = next_account_info(accs_iter)?;
+
+
+    let pubkey_a = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id())?;
+    let (_, bump_seed) = Pubkey::find_program_address(&[TOKEN_A_SEED.as_bytes()], &id());
+    let signer_seeds: &[&[_]] = &[TOKEN_A_SEED.as_bytes(), &[bump_seed]];
+    invoke_signed(
+        &system_instruction::create_account_with_seed(
+            payer_acc.key,
+            &pubkey_a,
+            &id(),
+            TOKEN_A_SEED,
+            settle_acc_config.get_tokens_a(),
+            0,
+            &id()
+        ),
+        &[payer_acc.clone(), token_a_acc.clone()],
+        &[&signer_seeds]
+    )?;
+
+    // let pubkey_b = Pubkey::create_with_seed(&id(), TOKEN_B_SEED, &id())?;
+    // let signer_seeds: &[&[_]] = &[TOKEN_B_SEED.as_bytes()];
+    // invoke_signed(
+    //     &system_instruction::create_account_with_seed(
+    //         payer_acc.key,
+    //         &pubkey_b,
+    //         &id(),
+    //         TOKEN_B_SEED,
+    //         settle_acc_config.get_tokens_b(),
+    //         0,
+    //         &id()
+    //     ),
+    //     &[payer_acc.clone()],
+    //     &[&signer_seeds]
+    // )?;
 
     Ok(())
 }
