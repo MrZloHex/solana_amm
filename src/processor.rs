@@ -98,7 +98,7 @@ pub fn create_settlement_accounts(accounts: &[AccountInfo], settle_acc_config: C
             0,
             &id()
         ),
-        &[payer_acc.clone(), token_a_acc.clone(), system_info.clone()],
+        &[token_a_acc.clone(), payer_acc.clone(), system_info.clone()],
         &[&signer_seeds]
     )?;
 
