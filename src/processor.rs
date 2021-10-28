@@ -83,7 +83,8 @@ pub fn check_pda_acc(acc: &Pubkey, seed: &str) -> bool {
 pub fn create_settlement_accounts(accounts: &[AccountInfo], settle_acc_config: CreateSettlementAccounts) -> ProgramResult {
     let accs_iter = &mut accounts.iter();
     let payer_acc = next_account_info(accs_iter)?;
-    let token_a_acc = next_account_info(accs_iter)?;
+    // let token_a_acc = next_account_info(accs_iter)?;
+    let system_info = next_account_info(accs_iter)?;
 
 
     // let pubkey_a = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id())?;
@@ -99,7 +100,7 @@ pub fn create_settlement_accounts(accounts: &[AccountInfo], settle_acc_config: C
             0,
             &id()
         ),
-        &[payer_acc.clone(), token_a_acc.clone()],
+        &[payer_acc.clone(), system_info.clone()],
         &[&signer_seeds]
     )?;
 

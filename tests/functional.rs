@@ -1,48 +1,54 @@
 #![cfg(feature = "test-bpf")]
 
 use solana_amm::{TOKEN_A_SEED, TOKEN_B_SEED, entrypoint::process_instruction, id};
-use solana_program::pubkey::Pubkey;
 use solana_program_test::{processor, tokio, ProgramTest};
-use solana_sdk::{account::Account, instruction::{AccountMeta, Instruction}, signature::{Keypair, Signer}, transaction::Transaction};
+use solana_sdk::{
+    account::Account,
+    instruction::{AccountMeta, Instruction},
+    pubkey::Pubkey,
+    signature::{Keypair, Signer},
+    transaction::Transaction,
+    system_program
+};
 
 #[tokio::test]
 async fn test_transfer_x() {
     let mut program_test = ProgramTest::new("solana_amm", id(), processor!(process_instruction));
 
-    let xtok_acc = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
-    let ytok_acc = Pubkey::create_with_seed(&id(), TOKEN_B_SEED, &id()).unwrap();
-    let xtok_user = Pubkey::new_unique();
-    let ytok_user = Pubkey::new_unique();
+    let prog_tok_a = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
+    let prog_tok_b = Pubkey::create_with_seed(&id(), TOKEN_B_SEED, &id()).unwrap();
+    let user_tok_a = Pubkey::new_unique();
+    let user_tok_b = Pubkey::new_unique();
 
     program_test.add_account(
-        xtok_acc,
+        prog_tok_a,
         Account {
             lamports: 19,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
     program_test.add_account(
-        ytok_acc,
+        prog_tok_b,
         Account {
             lamports: 19,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
     program_test.add_account(
-        xtok_user,
+        user_tok_a,
         Account {
             lamports: 350,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
     program_test.add_account(
-        ytok_user,
+        user_tok_b,
         Account {
             lamports: 18,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
@@ -54,10 +60,10 @@ async fn test_transfer_x() {
             id(),
             &[0, 0, 86, 1, 0, 0, 0, 0, 0, 0],
             vec![
-                AccountMeta::new(xtok_acc, false),
-                AccountMeta::new(ytok_acc, false),
-                AccountMeta::new(xtok_user, false),
-                AccountMeta::new(ytok_user, false),
+                AccountMeta::new(prog_tok_a, false),
+                AccountMeta::new(prog_tok_b, false),
+                AccountMeta::new(user_tok_a, false),
+                AccountMeta::new(user_tok_b, false),
             ],
         )],
         Some(&payer.pubkey()),
@@ -65,21 +71,21 @@ async fn test_transfer_x() {
     transaction.sign(&[&payer], recent_blockhash);
     banks_client.process_transaction(transaction).await.unwrap();
 
-    let x_acc = banks_client.get_account(xtok_acc).await.unwrap().unwrap();
-    let x_lam = x_acc.lamports;
-    assert_eq!(x_lam, 361);
+    let acc_tok_a = banks_client.get_account(prog_tok_a).await.unwrap().unwrap();
+    let lam_tok_a = acc_tok_a.lamports;
+    assert_eq!(lam_tok_a, 361);
 
-    let y_acc = banks_client.get_account(ytok_acc).await.unwrap().unwrap();
-    let y_lam = y_acc.lamports;
-    assert_eq!(y_lam, 1);
+    let acc_tok_b = banks_client.get_account(prog_tok_b).await.unwrap().unwrap();
+    let lam_tok_b = acc_tok_b.lamports;
+    assert_eq!(lam_tok_b, 1);
 
-    let x_user = banks_client.get_account(xtok_user).await.unwrap().unwrap();
-    let x_lam_u = x_user.lamports;
-    assert_eq!(x_lam_u, 8);
+    let u_acc_tok_a = banks_client.get_account(user_tok_a).await.unwrap().unwrap();
+    let lam_tok_a_u = u_acc_tok_a.lamports;
+    assert_eq!(lam_tok_a_u, 8);
 
-    let y_user = banks_client.get_account(ytok_user).await.unwrap().unwrap();
-    let y_lam_u = y_user.lamports;
-    assert_eq!(y_lam_u, 36);
+    let u_acc_tok_b = banks_client.get_account(user_tok_b).await.unwrap().unwrap();
+    let lam_tok_b_u = u_acc_tok_b.lamports;
+    assert_eq!(lam_tok_b_u, 36);
 }
 
 #[tokio::test]
@@ -88,40 +94,40 @@ async fn test_transfer_y() {
     // BUG: IF YOU REMOVE THIS TESTS WILL CRAHES
     let _ = Pubkey::new_unique();
 
-    let xtok_acc = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
-    let ytok_acc = Pubkey::create_with_seed(&id(), TOKEN_B_SEED, &id()).unwrap();
-    let xtok_user = Pubkey::new_unique();
-    let ytok_user = Pubkey::new_unique();
+    let prog_tok_a = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
+    let prog_tok_b = Pubkey::create_with_seed(&id(), TOKEN_B_SEED, &id()).unwrap();
+    let user_tok_a = Pubkey::new_unique();
+    let user_tok_b = Pubkey::new_unique();
 
     program_test.add_account(
-        xtok_acc,
+        prog_tok_a,
         Account {
             lamports: 20,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
     program_test.add_account(
-        ytok_acc,
+        prog_tok_b,
         Account {
             lamports: 20,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
     program_test.add_account(
-        xtok_user,
+        user_tok_a,
         Account {
             lamports: 15,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
     program_test.add_account(
-        ytok_user,
+        user_tok_b,
         Account {
             lamports: 120,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
@@ -133,10 +139,10 @@ async fn test_transfer_y() {
             id(),
             &[0, 1, 60, 0, 0, 0, 0, 0, 0, 0],
             vec![
-                AccountMeta::new(xtok_acc, false),
-                AccountMeta::new(ytok_acc, false),
-                AccountMeta::new(xtok_user, false),
-                AccountMeta::new(ytok_user, false),
+                AccountMeta::new(prog_tok_a, false),
+                AccountMeta::new(prog_tok_b, false),
+                AccountMeta::new(user_tok_a, false),
+                AccountMeta::new(user_tok_b, false),
             ],
         )],
         Some(&payer.pubkey()),
@@ -144,21 +150,21 @@ async fn test_transfer_y() {
     transaction.sign(&[&payer], recent_blockhash);
     banks_client.process_transaction(transaction).await.unwrap();
 
-    let x_acc = banks_client.get_account(xtok_acc).await.unwrap().unwrap();
-    let x_lam = x_acc.lamports;
-    assert_eq!(x_lam, 5);
+    let acc_tok_a = banks_client.get_account(prog_tok_a).await.unwrap().unwrap();
+    let lam_tok_a = acc_tok_a.lamports;
+    assert_eq!(lam_tok_a, 5);
 
-    let y_acc = banks_client.get_account(ytok_acc).await.unwrap().unwrap();
-    let y_lam = y_acc.lamports;
-    assert_eq!(y_lam, 80);
+    let acc_tok_b = banks_client.get_account(prog_tok_b).await.unwrap().unwrap();
+    let lam_tok_b = acc_tok_b.lamports;
+    assert_eq!(lam_tok_b, 80);
 
-    let x_user = banks_client.get_account(xtok_user).await.unwrap().unwrap();
-    let x_lam_u = x_user.lamports;
-    assert_eq!(x_lam_u, 30);
+    let u_acc_tok_a = banks_client.get_account(user_tok_a).await.unwrap().unwrap();
+    let lam_tok_a_u = u_acc_tok_a.lamports;
+    assert_eq!(lam_tok_a_u, 30);
 
-    let y_user = banks_client.get_account(ytok_user).await.unwrap().unwrap();
-    let y_lam_u = y_user.lamports;
-    assert_eq!(y_lam_u, 60);
+    let u_acc_tok_b = banks_client.get_account(user_tok_b).await.unwrap().unwrap();
+    let lam_tok_b_u = u_acc_tok_b.lamports;
+    assert_eq!(lam_tok_b_u, 60);
 }
 
 #[tokio::test]
@@ -167,40 +173,40 @@ async fn test_transfer_float() {
     // BUG: IF YOU REMOVE THIS TESTS WILL CRAHES
     let _ = Pubkey::new_unique();
 
-    let xtok_acc = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
-    let ytok_acc = Pubkey::create_with_seed(&id(), TOKEN_B_SEED, &id()).unwrap();
-    let xtok_user = Pubkey::new_unique();
-    let ytok_user = Pubkey::new_unique();
+    let prog_tok_a = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
+    let prog_tok_b = Pubkey::create_with_seed(&id(), TOKEN_B_SEED, &id()).unwrap();
+    let user_tok_a = Pubkey::new_unique();
+    let user_tok_b = Pubkey::new_unique();
 
     program_test.add_account(
-        xtok_acc,
+        prog_tok_a,
         Account {
             lamports: 25,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
     program_test.add_account(
-        ytok_acc,
+        prog_tok_b,
         Account {
             lamports: 20,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
     program_test.add_account(
-        xtok_user,
+        user_tok_a,
         Account {
             lamports: 80,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
     program_test.add_account(
-        ytok_user,
+        user_tok_b,
         Account {
             lamports: 10,
-            owner: id(),
+            owner: id().clone(),
             ..Account::default()
         },
     );
@@ -212,10 +218,10 @@ async fn test_transfer_float() {
             id(),
             &[0, 0, 76, 0, 0, 0, 0, 0, 0, 0],
             vec![
-                AccountMeta::new(xtok_acc, false),
-                AccountMeta::new(ytok_acc, false),
-                AccountMeta::new(xtok_user, false),
-                AccountMeta::new(ytok_user, false),
+                AccountMeta::new(prog_tok_a, false),
+                AccountMeta::new(prog_tok_b, false),
+                AccountMeta::new(user_tok_a, false),
+                AccountMeta::new(user_tok_b, false),
             ],
         )],
         Some(&payer.pubkey()),
@@ -223,21 +229,21 @@ async fn test_transfer_float() {
     transaction.sign(&[&payer], recent_blockhash);
     banks_client.process_transaction(transaction).await.unwrap();
 
-    let x_acc = banks_client.get_account(xtok_acc).await.unwrap().unwrap();
-    let x_lam = x_acc.lamports;
-    assert_eq!(x_lam, 101);
+    let acc_tok_a = banks_client.get_account(prog_tok_a).await.unwrap().unwrap();
+    let lam_tok_a = acc_tok_a.lamports;
+    assert_eq!(lam_tok_a, 101);
 
-    let y_acc = banks_client.get_account(ytok_acc).await.unwrap().unwrap();
-    let y_lam = y_acc.lamports;
-    assert_eq!(y_lam, 4);
+    let acc_tok_b = banks_client.get_account(prog_tok_b).await.unwrap().unwrap();
+    let lam_tok_b = acc_tok_b.lamports;
+    assert_eq!(lam_tok_b, 4);
 
-    let x_user = banks_client.get_account(xtok_user).await.unwrap().unwrap();
-    let x_lam_u = x_user.lamports;
-    assert_eq!(x_lam_u, 4);
+    let u_acc_tok_a = banks_client.get_account(user_tok_a).await.unwrap().unwrap();
+    let lam_tok_a_u = u_acc_tok_a.lamports;
+    assert_eq!(lam_tok_a_u, 4);
 
-    let y_user = banks_client.get_account(ytok_user).await.unwrap().unwrap();
-    let y_lam_u = y_user.lamports;
-    assert_eq!(y_lam_u, 26);
+    let u_acc_tok_b = banks_client.get_account(user_tok_b).await.unwrap().unwrap();
+    let lam_tok_b_u = u_acc_tok_b.lamports;
+    assert_eq!(lam_tok_b_u, 26);
 }
 
 #[tokio::test]
@@ -247,7 +253,7 @@ async fn test_settlement_accounts() {
     // let _ = Pubkey::new_unique();
     let user_payer = Keypair::new();
     // let user_payer = Pubkey::new_unique();
-    let xtok_acc = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
+    // let xtok_acc = Pubkey::create_with_seed(&id(), TOKEN_A_SEED, &id()).unwrap();
 
     program_test.add_account(
         user_payer.pubkey(),
@@ -257,13 +263,13 @@ async fn test_settlement_accounts() {
             ..Account::default()
         },
     );
-    program_test.add_account(
-        xtok_acc,
-        Account {
-            owner: id(),
-            ..Account::default()
-        },
-    );
+    // program_test.add_account(
+    //     xtok_acc,
+    //     Account {
+    //         owner: id(),
+    //         ..Account::default()
+    //     },
+    // );
 
     let (mut banks_client, payer, recent_blockhash) = program_test.start().await;
 
@@ -273,7 +279,7 @@ async fn test_settlement_accounts() {
             &[1, 41, 9, 0, 0, 0, 0, 0, 0, 215, 17, 0, 0, 0, 0, 0, 0],
             vec![
                 AccountMeta::new(user_payer.pubkey(), true),
-                AccountMeta::new(xtok_acc, false)
+                AccountMeta::new_readonly(system_program::id(), false)
             ],
         )],
         Some(&payer.pubkey()),
